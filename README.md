@@ -137,6 +137,15 @@ Astromission uses a **static build deployment model**:
 
 This project uses the Transmission RPC API (JSON-RPC 2.0 protocol). Full API documentation is available in `src/docs/rpc-specs.md`.
 
+## Screenshots
+
+![Screenshot_15-2-2026_223210_localhost](https://github.com/user-attachments/assets/71c54c87-59f3-4c15-bc18-8d4291ceeb22)
+![Screenshot_15-2-2026_223145_localhost](https://github.com/user-attachments/assets/01e7b152-9020-43e6-9a6c-fe0bc5958ca1)
+![Screenshot_15-2-2026_223122_localhost](https://github.com/user-attachments/assets/589f19dc-6c30-48b9-8646-8aeb94db05af)
+![Screenshot_15-2-2026_223112_localhost](https://github.com/user-attachments/assets/e1be49eb-15b4-4f27-907a-2613b6826baa)
+![Screenshot_15-2-2026_222520_localhost](https://github.com/user-attachments/assets/a22bcb1e-2b32-4a9e-9179-c008f04d5c3b)
+
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues or pull requests.
