@@ -1,0 +1,26 @@
+<!-- Torrent Details Drawer -->
+<el-dialog>
+	<dialog id="drawer" aria-labelledby="drawer-title" class="fixed inset-0 size-auto max-h-none max-w-none overflow-hidden bg-transparent backdrop:bg-transparent">
+		<el-dialog-backdrop class="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in dark:bg-gray-900/80"></el-dialog-backdrop>
+		<div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 focus:outline-none">
+			<el-dialog-panel class="pointer-events-auto w-screen max-w-md transform transition data-closed:translate-x-full data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in">
+				<div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl dark:bg-gray-800">
+					<div class="flex items-start justify-between border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-6 sm:px-6">
+						<h2 id="drawer-title" class="text-base font-semibold text-gray-900 dark:text-white">Torrent Details</h2>
+						<div class="ml-3 flex h-7 items-center">
+							<button type="button" command="close" commandfor="drawer" class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:hover:text-gray-300">
+								<span class="sr-only">Close panel</span>
+								<svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+								</svg>
+							</button>
+						</div>
+					</div>
+					<div id="drawer-content" class="relative mt-6 flex-1 px-4 sm:px-6">
+						<div class="text-sm text-gray-500 dark:text-gray-400">Select a torrent to view details</div>
+					</div>
+				</div>
+			</el-dialog-panel>
+		</div>
+	</dialog>
+</el-dialog>

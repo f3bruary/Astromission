@@ -1,0 +1,199 @@
+---
+import { menu } from "../data/menu";
+---
+
+<div class="hidden bg-gray-900 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+	<div
+		class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4 dark:border-white/10 dark:bg-black/10"
+	>
+		<div class="flex h-16 shrink-0 items-center gap-x-4 justify-between">
+			<h1 class="text-lg font-semibold leading-8 tracking-tight text-gray-900 dark:text-white">Transmission</h1>
+
+			<button
+				type="button"
+				command="show-modal"
+				commandfor="add-torrent-modal"
+				class="cursor-pointer"
+				id="button-add-torrent"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+					class="size-10 text-gray-700 dark:text-gray-400 rounded-full hover:text-gray-500 dark:hover:text-gray-200 transition"
+				>
+					<path
+						fill-rule="evenodd"
+						d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z"
+						clip-rule="evenodd"></path>
+				</svg>
+			</button>
+		</div>
+		<nav class="flex flex-1 flex-col">
+			<ul role="list" class="flex flex-1 flex-col gap-y-7">
+				<li>
+					<ul role="list" class="-mx-2 space-y-1 relative">
+						{
+							menu.map((item) => (
+								<li
+									class="status-menu-item transition-all duration-300"
+									style={
+										item.status !== null
+											? "opacity: 0; height: 0; overflow: hidden; margin: 0;"
+											: ""
+									}
+								>
+									<a
+										href={item.href}
+										data-status={item.status === null ? "null" : item.status}
+										class="status-filter group flex gap-x-3 rounded-md py-2 pl-2 pr-4 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+									>
+										<svg
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.5"
+											data-slot="icon"
+											aria-hidden="true"
+											class="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white"
+										>
+											<path
+												d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										<div class="flex items-center justify-between w-full">
+											<span>{item.label}</span>
+											<span
+												data-count-status={item.status === null ? "null" : item.status}
+												class="rounded-full bg-gray-100 dark:bg-gray-800 size-5 px-5 flex items-center justify-center"
+											>
+												0
+											</span>
+										</div>
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</li>
+				<li class="mt-auto">
+					<div id="connection-alert" class="opacity-0 transition-opacity duration-300 -mx-2 mb-2">
+						<div
+							class="flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								fill="currentColor"
+								class="size-6 shrink-0"
+							>
+								<path
+									fill-rule="evenodd"
+									d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+									clip-rule="evenodd"></path>
+							</svg>
+							<span>Connection Error</span>
+						</div>
+					</div>
+					<button
+						type="button"
+						command="show-modal"
+						commandfor="settings-modal"
+						class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white w-full"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							data-slot="icon"
+							aria-hidden="true"
+							class="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white"
+						>
+							<path
+								d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
+								stroke-linecap="round"
+								stroke-linejoin="round"></path>
+							<path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke-linecap="round" stroke-linejoin="round"
+							></path>
+						</svg>
+						Settings
+					</button>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>
+
+<script>
+	const navLinks = document.querySelectorAll('.lg\\:fixed nav ul[role="list"] > li > ul > li > a');
+
+	const activeClasses = {
+		link: ["bg-gray-50", "text-indigo-600", "dark:bg-white/5", "dark:text-white"],
+		icon: ["text-indigo-600", "dark:text-white"],
+		badge: ["bg-indigo-50", "dark:bg-gray-600"],
+	};
+
+	const hoverClasses = {
+		link: [
+			"text-gray-700",
+			"hover:bg-gray-50",
+			"hover:text-indigo-600",
+			"dark:text-gray-400",
+			"dark:hover:bg-white/5",
+			"dark:hover:text-white",
+		],
+		icon: ["text-gray-400", "group-hover:text-indigo-600", "dark:group-hover:text-white"],
+		badge: ["bg-gray-100", "dark:bg-gray-800"],
+	};
+
+	function setActiveState(link: HTMLAnchorElement) {
+		const icon = link.querySelector("svg");
+		const badge = link.querySelector(".rounded-full");
+
+		// Remove hover classes and add active classes
+		link.classList.remove(...hoverClasses.link);
+		link.classList.add(...activeClasses.link);
+
+		if (icon) {
+			icon.classList.remove(...hoverClasses.icon);
+			icon.classList.add(...activeClasses.icon);
+		}
+
+		if (badge) {
+			badge.classList.remove(...hoverClasses.badge);
+			badge.classList.add(...activeClasses.badge);
+		}
+	}
+
+	function setHoverState(link: HTMLAnchorElement) {
+		const icon = link.querySelector("svg");
+		const badge = link.querySelector(".rounded-full");
+
+		// Remove active classes and add hover classes
+		link.classList.remove(...activeClasses.link);
+		link.classList.add(...hoverClasses.link);
+
+		if (icon) {
+			icon.classList.remove(...activeClasses.icon);
+			icon.classList.add(...hoverClasses.icon);
+		}
+
+		if (badge) {
+			badge.classList.remove(...activeClasses.badge);
+			badge.classList.add(...hoverClasses.badge);
+		}
+	}
+
+	navLinks.forEach((link) => {
+		link.addEventListener("click", (e) => {
+			// Set all links to hover state
+			navLinks.forEach((l) => setHoverState(l as HTMLAnchorElement));
+
+			// Set clicked link to active state
+			setActiveState(link as HTMLAnchorElement);
+		});
+	});
+</script>

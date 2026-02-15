@@ -1,0 +1,12 @@
+---
+import type { NormalizedTorrent } from "../types";
+import { renderTorrentHTML } from "../utils/renderTorrent";
+
+interface Props {
+	torrent: NormalizedTorrent;
+}
+
+const { torrent } = Astro.props;
+---
+
+<Fragment set:html={renderTorrentHTML(torrent)} />

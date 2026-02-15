@@ -1,0 +1,126 @@
+---
+import "../styles/global.css";
+import SidebarDesktop from "../components/SidebarDesktop.astro";
+import SidebarMobile from "../components/SidebarMobile.astro";
+import HeaderMobile from "../components/HeaderMobile.astro";
+import TorrentDrawer from "../components/TorrentDrawer.astro";
+import AddTorrentModal from "../components/AddTorrentModal.astro";
+import SettingsModal from "../components/SettingsModal.astro";
+import DeleteTorrentModal from "../components/DeleteTorrentModal.astro";
+import DeleteAllTorrentsModal from "../components/DeleteAllTorrentsModal.astro";
+---
+
+<html lang="en" class="h-full bg-white dark:bg-gray-900">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+		<title>Astromission</title>
+		<script is:inline>
+			// Initialize theme on page load to prevent FOUC
+			document.documentElement.classList.toggle(
+				"dark",
+				localStorage.theme === "dark" ||
+					(!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
+			);
+		</script>
+	</head>
+	<body class="h-full">
+		<SidebarMobile />
+		<SidebarDesktop />
+
+		<div class="lg:pl-72">
+			<HeaderMobile />
+
+			<main class="py-10">
+				<div class="px-4 sm:px-6 lg:px-8">
+					<slot />
+				</div>
+			</main>
+		</div>
+
+		<TorrentDrawer />
+		<AddTorrentModal />
+		<SettingsModal />
+		<DeleteTorrentModal />
+		<DeleteAllTorrentsModal />
+		<script>
+			import "@tailwindplus/elements";
+		</script>
+		<script>
+			import "../scripts/modals.ts";
+		</script>
+		<script>
+			import "../scripts/search.ts";
+		</script>
+		<script is:inline>
+			// Theme toggle logic - runs client-side
+			document.addEventListener('DOMContentLoaded', () => {
+				const themeToggle = document.getElementById("theme-toggle");
+				const themeSlider = document.getElementById("theme-slider");
+				const themeIconLight = document.getElementById("theme-icon-light");
+				const themeIconSystem = document.getElementById("theme-icon-system");
+				const themeIconDark = document.getElementById("theme-icon-dark");
+
+				if (themeToggle && themeSlider) {
+					// Initialize visual state based on current theme
+					const updateVisualState = () => {
+						const isDark = document.documentElement.classList.contains("dark");
+						const hasTheme = "theme" in localStorage;
+						
+					if (!hasTheme) {
+						// System mode - middle position
+						themeSlider.style.transform = "translateX(0.625rem)";
+						themeIconLight.style.opacity = "0";
+						themeIconSystem.style.opacity = "1";
+						themeIconDark.style.opacity = "0";
+						} else if (localStorage.theme === "light") {
+							// Light mode - left position
+							themeSlider.style.transform = "translateX(0)";
+							themeIconLight.style.opacity = "1";
+							themeIconSystem.style.opacity = "0";
+							themeIconDark.style.opacity = "0";
+						} else {
+							// Dark mode - right position (w-11 - size-5 = 2.75rem - 1.25rem = 1.5rem)
+							themeSlider.style.transform = "translateX(1.5rem)";
+							themeIconLight.style.opacity = "0";
+							themeIconSystem.style.opacity = "0";
+							themeIconDark.style.opacity = "1";
+						}
+					};
+
+					updateVisualState();
+
+					// Handle theme toggle click (cycles through: system -> light -> dark -> system)
+					themeToggle.addEventListener("click", (e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						const currentTheme = localStorage.theme;
+						
+					if (!currentTheme) {
+						// System -> Light
+						localStorage.theme = "light";
+						document.documentElement.classList.remove("dark");
+					} else if (currentTheme === "light") {
+						// Light -> Dark
+						localStorage.theme = "dark";
+						document.documentElement.classList.add("dark");
+					} else {
+						// Dark -> System
+						localStorage.removeItem("theme");
+						const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+						if (prefersDark) {
+							document.documentElement.classList.add("dark");
+						} else {
+							document.documentElement.classList.remove("dark");
+						}
+					}
+
+					updateVisualState();
+					});
+				}
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,250 @@
+---
+import Layout from "../layouts/Layout.astro";
+import TorrentItem from "../components/TorrentItem.astro";
+import { getTorrents } from "../utils/transmission";
+import type { NormalizedTorrent } from "../types";
+
+const transmissionData = await getTorrents();
+const torrents: NormalizedTorrent[] = transmissionData?.torrents || [];
+---
+
+<Layout>
+	<ul id="torrent-list" role="list" class="divide-y divide-gray-200 dark:divide-white/10">
+		{torrents.map((torrent) => <TorrentItem torrent={torrent} />)}
+	</ul>
+
+	<script>
+		import { getTorrents } from "../utils/transmission";
+		import { renderTorrentHTML } from "../utils/renderTorrent";
+		const INTERVAL_MS = 5000;
+
+		// Single source of truth for all torrents
+		let allTorrents: any[] = [];
+		let currentFilter: number | string | null = null; // string for special filters like 'finished'
+		let searchTerm: string = "";
+
+		// Helper to get status number from normalized torrent data
+		function getStatusNum(torrent: any): number {
+			// If status exists (old format), use it
+			if (typeof torrent.status === 'number') return torrent.status;
+			
+			// Map state string to status number (don't override based on completion)
+			const state = torrent.state ?? '';
+			if (state === 'downloading') return 4;
+			if (state === 'seeding') return 6;
+			if (state === 'paused') return 0; // stopped/paused
+			if (state === 'checking') return 2;
+			if (state === 'queued') return 3;
+			return 0;
+		}
+
+		// Initialize: Load server-rendered data, then start polling
+		function initializeFromDOM() {
+			const listItems = document.querySelectorAll("#torrent-list [data-torrent]");
+			
+			// Parse server-rendered torrent data
+			listItems.forEach((item) => {
+				const dataAttr = item.getAttribute('data-torrent');
+				if (dataAttr) {
+					try {
+						const decodedData = dataAttr.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+						const torrent = JSON.parse(decodedData);
+						allTorrents.push(torrent);
+					} catch (e) {
+						console.error('Failed to parse torrent data:', e);
+					}
+				}
+			});
+			
+			updateCounts();
+			
+			// Start polling for updates
+			fetchTorrents();
+		}
+
+		async function fetchTorrents() {
+			const alertElement = document.getElementById("connection-alert");
+			const alertElementMobile = document.getElementById("connection-alert-mobile");
+			
+			try {
+				const data = await getTorrents();
+				if (data?.torrents) {
+					allTorrents = data.torrents;
+					updateCounts();
+					renderTorrentList();
+					
+					// Hide alerts on success
+					if (alertElement) alertElement.style.opacity = "0";
+					if (alertElementMobile) alertElementMobile.style.opacity = "0";
+				} else {
+					// Show alerts if request failed
+					if (alertElement) alertElement.style.opacity = "1";
+					if (alertElementMobile) alertElementMobile.style.opacity = "1";
+				}
+			} catch (error) {
+				console.error("Error fetching torrents:", error);
+				if (alertElement) alertElement.style.opacity = "1";
+				if (alertElementMobile) alertElementMobile.style.opacity = "1";
+			}
+		}
+
+		function updateCounts() {
+			const countElements = document.querySelectorAll("[data-count-status]");
+			countElements.forEach((element) => {
+				const status = element.getAttribute("data-count-status");
+				let count = 0;
+				
+				if (status === "null") {
+					count = allTorrents.length;
+		} else if (status === "finished") {
+			// Finished = torrents with 100% completion (progress is 0-1 range)
+			count = allTorrents.filter(t => t.progress && t.progress >= 1).length;
+				} else {
+					const statusNum = Number(status);
+					count = allTorrents.filter(t => getStatusNum(t) === statusNum).length;
+			}
+			
+			element.textContent = count.toString();
+			
+			// Show/hide menu items based on count (except "All")
+			if (status !== "null") {
+				const menuItem = element.closest('.status-menu-item') as HTMLElement;
+				if (menuItem) {
+					if (count > 0) {
+						menuItem.style.opacity = '1';
+						menuItem.style.height = '';
+						menuItem.style.overflow = '';
+						menuItem.style.margin = '';
+					} else {
+						menuItem.style.opacity = '0';
+						menuItem.style.height = '0';
+						menuItem.style.overflow = 'hidden';
+						menuItem.style.margin = '0';
+					}
+				}
+			}
+		});
+	}		// Re-render the entire list (simple and reliable)
+		function renderTorrentList() {
+			const list = document.getElementById("torrent-list");
+			if (!list) return;
+
+			// Apply filters
+			let filteredTorrents = allTorrents;
+			
+		// Apply status filter
+		if (currentFilter !== null) {
+			if (currentFilter === 'finished') {
+				// Special 'finished' filter - show all torrents with 100% completion (progress is 0-1)
+				filteredTorrents = filteredTorrents.filter((t) => t.progress && t.progress >= 1);
+				} else {
+					filteredTorrents = filteredTorrents.filter((t) => getStatusNum(t) === currentFilter);
+				}
+			}
+			
+			// Apply search filter
+			if (searchTerm) {
+				const term = searchTerm.toLowerCase();
+				filteredTorrents = filteredTorrents.filter((t) => 
+					t.name?.toLowerCase().includes(term)
+				);
+			}
+
+			// Clear and re-render
+			list.innerHTML = filteredTorrents.map(torrent => renderTorrentHTML(torrent)).join('');
+		}
+
+		// Update status filter visuals and re-render list
+		function updateActiveFilter() {
+			const hash = window.location.hash;
+			const filterLinks = document.querySelectorAll(".status-filter");
+
+			// Determine current filter from hash
+			if (!hash || hash === "#all") {
+				currentFilter = null;
+			} else {
+				const activeLink = document.querySelector(`.status-filter[href="${hash}"]`);
+				if (activeLink) {
+					const statusAttr = activeLink.getAttribute("data-status");
+					if (statusAttr === "null") {
+						currentFilter = null;
+					} else if (statusAttr === "finished") {
+						currentFilter = 'finished';
+					} else {
+						currentFilter = Number(statusAttr);
+					}
+				}
+			}
+
+			// Update active styles
+			filterLinks.forEach((link) => {
+				const linkHash = link.getAttribute("href");
+				const isActive = (!hash && linkHash === "#all") || hash === linkHash;
+
+				if (isActive) {
+					link.classList.remove(
+						"text-gray-700",
+						"hover:bg-gray-50",
+						"hover:text-indigo-600",
+						"dark:text-gray-400",
+						"dark:hover:bg-white/5",
+						"dark:hover:text-white"
+					);
+					link.classList.add("bg-gray-50", "text-indigo-600", "dark:bg-white/5", "dark:text-white");
+					const icon = link.querySelector("svg");
+					if (icon) {
+						icon.classList.remove(
+							"text-gray-400",
+							"group-hover:text-indigo-600",
+							"dark:group-hover:text-white"
+						);
+						icon.classList.add("text-indigo-600", "dark:text-white");
+					}
+				} else {
+					link.classList.remove("bg-gray-50", "text-indigo-600", "dark:bg-white/5", "dark:text-white");
+					link.classList.add(
+						"text-gray-700",
+						"hover:bg-gray-50",
+						"hover:text-indigo-600",
+						"dark:text-gray-400",
+						"dark:hover:bg-white/5",
+						"dark:hover:text-white"
+					);
+					const icon = link.querySelector("svg");
+					if (icon) {
+						icon.classList.remove("text-indigo-600", "dark:text-white");
+						icon.classList.add(
+							"text-gray-400",
+							"group-hover:text-indigo-600",
+							"dark:group-hover:text-white"
+						);
+					}
+				}
+			});
+
+			renderTorrentList();
+		}
+
+		// Expose function for search script to update search term
+		(window as any).updateSearchTerm = (term: string) => {
+			searchTerm = term;
+			renderTorrentList();
+		};
+
+		// Handle hash changes
+		window.addEventListener("hashchange", updateActiveFilter);
+
+		// Listen for torrent updates from button actions
+		window.addEventListener("torrent-updated", () => {
+			// Small delay to let daemon process the change
+			setTimeout(() => fetchTorrents(), 200);
+		});
+
+		// Initialize on page load
+		initializeFromDOM();
+		updateActiveFilter();
+
+		// Start polling every 5 seconds
+		setInterval(fetchTorrents, INTERVAL_MS);
+	</script>
+</Layout>
